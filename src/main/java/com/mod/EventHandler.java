@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -20,14 +19,13 @@ import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 
-public class Renderer
+public class EventHandler
 {
 //  this is true when the overlay is temporarily hidden.
 
     public static GuiHitbox todoEditorHitbox;
     public static int[] todoEditorGuiPosCash;
     public static boolean draggingEditorGui;
-    public static TodoList currentList;
     public static int currentLine = -1;
     public static boolean holdingDownLMB;
     public static boolean focusedOnEditor;
@@ -45,7 +43,7 @@ public class Renderer
 //        to-do list overlay
         if (UserInputListener.isShowTodo)
         {
-            renderList(currentList.list);
+            renderList(TodoList.getCurrent().list);
         }
 
     }
@@ -125,7 +123,7 @@ public class Renderer
             Gui.drawModalRectWithCustomSizedTexture(todoEditorHitbox.objectX, todoEditorHitbox.objectY, u, v, width, height, textureWidth, textureHeight);
 
             // draw to-do text
-            ArrayList<TodoItem> list = currentList.list;
+            ArrayList<TodoItem> list = TodoList.getCurrent().list;
             for (int i = 0; i < list.size(); i++)
             {
                 if (i == currentLine && System.currentTimeMillis() % 700 < 350)
@@ -185,9 +183,9 @@ public class Renderer
                 if (!holdingDownLMB)
                 {
                     currentLine = (mouseY - (todoEditorHitbox.objectY + 10)) / 10;
-                    currentLine = Math.min(currentLine, currentList.list.size() - 1);
+                    currentLine = Math.min(currentLine, TodoList.getCurrent().list.size() - 1);
 
-                    if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && currentList.list.size() > currentLine)
+                    if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && TodoList.getCurrent().list.size() > currentLine)
                     {
                         removeLine();
                     }
@@ -218,9 +216,9 @@ public class Renderer
 
     private static void checkForIllegalCurrentLine()
     {
-        if (currentLine > currentList.list.size() - 1)
+        if (currentLine > TodoList.getCurrent().list.size() - 1)
         {
-            currentLine = currentList.list.size() - 1;
+            currentLine = TodoList.getCurrent().list.size() - 1;
         }
     }
 
@@ -245,18 +243,18 @@ public class Renderer
             //handling the input
             if (code == Keyboard.KEY_RETURN)
             {
-                currentList.list.add(currentLine + 1, new TodoItem("", currentList.list.get(currentLine).getColor()));
+                TodoList.getCurrent().list.add(currentLine + 1, new TodoItem("", TodoList.getCurrent().list.get(currentLine).getColor()));
                 currentLine += 1;
             }
             else if (code == Keyboard.KEY_BACK)
             {
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && currentList.list.size() > currentLine)
+                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && TodoList.getCurrent().list.size() > currentLine)
                 {
                     removeLine();
                 }
                 else
                 {
-                    currentList.list.get(currentLine).removeLastChar();
+                    TodoList.getCurrent().list.get(currentLine).removeLastChar();
                 }
             }
             else if (code == Keyboard.KEY_ESCAPE || code == Keyboard.KEY_LSHIFT
@@ -267,13 +265,11 @@ public class Renderer
             else if (code == Keyboard.KEY_LEFT)
             {
                 TodoList.incrementCurrentListI(-1);
-                updateCurrentList();
                 currentLine = 0;
             }
             else if (code == Keyboard.KEY_RIGHT)
             {
                 TodoList.incrementCurrentListI(1);
-                updateCurrentList();
                 currentLine = 0;
             }
             else if (code == Keyboard.KEY_N && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
@@ -281,7 +277,6 @@ public class Renderer
                 //add a blank list and then go to it
                 TodoList.createNewList();
                 TodoList.goToLatestList();
-                updateCurrentList();
                 currentLine = 0;
             }
             else if (code == Keyboard.KEY_S && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
@@ -290,7 +285,7 @@ public class Renderer
             }
             else
             {
-                currentList.list.get(currentLine).appendChar(key);
+                TodoList.getCurrent().list.get(currentLine).appendChar(key);
             }
             event.setCanceled(true);
         }
@@ -298,20 +293,19 @@ public class Renderer
 
     private static void removeLine()
     {
-        if (currentList.list.size() <= 1)
+        if (TodoList.getCurrent().list.size() <= 1)
         {
             //if this line is the last line, set to empty instead of removing
-            currentList.list.set(0, new TodoItem("", currentList.list.get(0).getColor()));
+            TodoList.getCurrent().list.set(0, new TodoItem("", TodoList.getCurrent().list.get(0).getColor()));
             return;
         }
-        currentList.list.remove(currentLine);
+        TodoList.getCurrent().list.remove(currentLine);
         if (currentLine != 0)
         {
             //bring currentLine to something that exists
             currentLine -= 1;
         }
     }
-
 
     private void moveTodoEditorBox(int mouseX, int mouseY)
     {
@@ -329,11 +323,6 @@ public class Renderer
             if (list.get(i).getItem().length() < 1) continue;
             renderTextToScreen("- " + list.get(i).getItem(), overlayCoords[0], overlayCoords[1] + 10*i, list.get(i).getColor());
         }
-    }
-
-    public static void updateCurrentList()
-    {
-        currentList = TodoList.getCurrentList();
     }
 
     private void renderTextToScreen(String text, int x, int y, int color)

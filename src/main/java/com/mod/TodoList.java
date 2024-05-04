@@ -2,7 +2,6 @@ package com.mod;
 
 import com.mod.util.JsonReader;
 import com.mod.util.TodoItem;
-import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,7 +96,6 @@ public class TodoList
                 addList(id, new TodoList(listsFromJson.get(key)));
             }
         }
-        Renderer.updateCurrentList();
     }
 
     public static void reloadLists()
@@ -121,9 +119,14 @@ public class TodoList
         list.remove(i);
     }
 
-    public static TodoList getCurrentList()
+    public static TodoList getCurrent()
     {
         return lists.get(currentListID);
+    }
+
+    public static ArrayList<TodoItem> getCurrentList()
+    {
+        return lists.get(currentListID).list;
     }
 
     public static void incrementCurrentListI(int x)

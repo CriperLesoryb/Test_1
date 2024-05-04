@@ -1,7 +1,6 @@
 package com.mod;
 
 import com.mod.Commands.ReloadListsCommand;
-import com.mod.util.JsonReader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
@@ -35,7 +34,7 @@ public class Init
         ClientRegistry.registerKeyBinding(keyTodoToggleVisibility);
 
         /* event handlers */
-        MinecraftForge.EVENT_BUS.register(new Renderer());
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.register(new UserInputListener());
 
         /* commands */
@@ -43,7 +42,6 @@ public class Init
 
         /* import to-do lists */
         TodoList.readListsFromDisk();
-
 
     }
 
