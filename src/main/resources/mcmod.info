@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "TodoList",
+    "name": "TodoList",
+    "description": "its a todo list. thats it.",
+    "version": "1.0.0",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Euphaa"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
