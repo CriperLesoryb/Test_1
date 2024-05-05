@@ -3,6 +3,7 @@ package com.mod;
 import com.mod.util.JsonReader;
 import com.mod.util.TodoItem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,6 +74,7 @@ public class TodoList
 
     public static void readListsFromDisk()
     {
+//        if (new File("./Todo/lists.json").exists()) return;
         Map<String, ArrayList<String>> listsFromJson = JsonReader.readJsonFileOutsideJar("./Todo/lists.json");
         if (listsFromJson == null || listsFromJson.size() < 1)
         {
@@ -153,6 +155,11 @@ public class TodoList
     public static void createNewList()
     {
         addList(lists.size(), new TodoList());
+    }
+
+    public int size()
+    {
+        return this.list.size();
     }
 
 }
